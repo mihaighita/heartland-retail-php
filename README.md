@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![PHP Version](https://img.shields.io/badge/php-%5E8.2-8892BF.svg)](https://www.php.net/)
 
-A complete, production-ready PHP 8.2+ client library for the [Heartland Retail REST API](https://dev.retail.heartland.us/).
+A complete, PHP 8.2+ client library for the [Heartland Retail REST API](https://dev.retail.heartland.us/).
 
 ---
 
@@ -81,47 +81,6 @@ $client = new Client($token->baseUrlFor($host), $token->accessToken);
 
 ---
 
-## Project Structure
-
-```
-src/
-├── Auth/               # OAuth client & token value object
-│   ├── OAuthClient.php
-│   └── TokenResponse.php
-├── Exception/          # Typed exception hierarchy
-│   ├── HeartlandRetailException.php
-│   ├── AuthenticationException.php
-│   ├── AuthorizationException.php
-│   ├── NotFoundException.php
-│   ├── ValidationException.php
-│   ├── RateLimitException.php
-│   └── TransportException.php
-├── Http/               # HTTP transport layer
-│   ├── HttpClient.php
-│   ├── Response.php
-│   └── PaginatedResponse.php
-├── Resource/           # API resource groups (one class per domain)
-│   ├── BaseResource.php
-│   ├── ItemsResource.php
-│   ├── CustomersResource.php
-│   ├── InventoryResource.php
-│   ├── SalesResource.php
-│   ├── PurchasingResource.php
-│   ├── PromotionsResource.php
-│   ├── GiftCardsResource.php
-│   ├── UsersResource.php
-│   ├── WebhooksResource.php
-│   ├── TaxResource.php
-│   ├── LocationsResource.php
-│   ├── ConfigResource.php
-│   ├── CustomFieldsResource.php
-│   ├── ReportsResource.php
-│   └── SystemResource.php
-└── Client.php          # Main entry point
-```
-
----
-
 ## Filters
 
 ```php
@@ -156,32 +115,6 @@ try {
   catch (RateLimitException $e)      { /* exhausted all retries */ }
   catch (TransportException $e)      { /* network / cURL error  */ }
 ```
-
----
-
-## Development
-
-```bash
-# Install dependencies
-composer install
-
-# Run tests
-vendor/bin/phpunit
-
-# Static analysis
-vendor/bin/phpstan analyse
-
-# Code style
-vendor/bin/php-cs-fixer fix
-```
-
----
-
-## Security
-
-- TLS certificate verification is **always on** and cannot be disabled.
-- Tokens are marked with `#[\SensitiveParameter]` to prevent leaking in stack traces.
-- Store `client_secret` and `access_token` in environment variables, never in source code.
 
 ---
 
