@@ -106,8 +106,12 @@ class InventoryResource extends BaseResource
      */
     public function getInventoryValuesByItem(array $query = [], int $page = 1, int $perPage = 50): PaginatedResponse
     {
-        $params = array_merge($query, ['page' => $page, 'per_page' => $perPage]);
-        return $this->getPaginated('inventory/values/by_item', $params);
+        $params = array_merge($query, [
+            'group'    => ['item_id', 'location_id'],
+            'page'     => $page,
+            'per_page' => $perPage,
+        ]);
+        return $this->getPaginated('inventory/values', $params);
     }
 
     /**
