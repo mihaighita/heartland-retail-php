@@ -65,14 +65,27 @@ abstract class BaseResource
     /**
      * Build a filter query string in Heartland Retail's advanced filter syntax.
      *
-     * Example:
-     *   buildFilter(['active' => true, 'description' => ['~', 'shirt']])
-     *   produces:  ?q[active]=1&q[description][~]=shirt
+     * Heartland uses the `~` (tilde) prefix with `$`-operators:
      *
-     * Simple values are passed as equality checks.
-     * Arrays of the form [operator, value] use the given operator (e.g. "~" for LIKE).
+     *   ~[field][$operator]=value
      *
-     * Supported operators: =, !=, <, >, <=, >=, ~ (contains), !~ (not contains)
+     * Supported operators: $eq, $neq, $gt, $gte, $lt, $lte, $in, $nin, $like
+     *
+     * Examples:
+     *   buildFilter(['active' => true])
+     *     → ~[active][$eq]=1
+     *
+     *   buildFilter(['updated_at' => ['$gte', '2025-01-01']])
+     *     → ~[updated_at][$gte]=2025-01-01
+     *
+     *   buildFilter(['price' => ['$gt', 100]])
+     *     → ~[price][$gt]=100
+     *
+     *   buildFilter(['color' => ['$like', '*blue*']])
+     *     → ~[color][$like]=*blue*
+     *
+     *   buildFilter(['custom@season' => 'Fall'])
+     *     → ~[custom@season][$eq]=Fall
      *
      * @param array<string, mixed> $filters
      * @return array<string, mixed>
@@ -84,9 +97,14 @@ abstract class BaseResource
         foreach ($filters as $field => $value) {
             if (is_array($value) && count($value) === 2) {
                 [$operator, $operand] = $value;
-                $query["q[{$field}][{$operator}]"] = $operand;
+                // Ensure operator has $ prefix
+                if (! str_starts_with($operator, '$')) {
+                    $operator = '$' . $operator;
+                }
+                $query["~[{$field}][{$operator}]"] = $operand;
             } else {
-                $query["q[{$field}]"] = $value;
+                // Simple equality
+                $query["~[{$field}][\$eq]"] = $value;
             }
         }
 
