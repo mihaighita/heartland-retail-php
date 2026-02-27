@@ -132,7 +132,13 @@ class HttpClient
             $filtered = array_filter($query, static fn (mixed $v): bool => $v !== null);
 
             if ($filtered !== []) {
-                $url .= '?' . http_build_query($filtered, '', '&', PHP_QUERY_RFC3986);
+                $qs = http_build_query($filtered, '', '&', PHP_QUERY_RFC3986);
+
+                // Heartland's API expects group[]=a&group[]=b (bracket-only),
+                // not group[0]=a&group[1]=b (PHP's indexed format).
+                $qs = preg_replace('/%5B\d+%5D/', '%5B%5D', $qs);
+
+                $url .= '?' . $qs;
             }
         }
 

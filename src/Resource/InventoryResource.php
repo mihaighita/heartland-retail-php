@@ -90,19 +90,24 @@ class InventoryResource extends BaseResource
     // =========================================================================
 
     /**
-     * Retrieve totals across all items (aggregate).
+     * Retrieve aggregate inventory value totals (no grouping).
+     *
+     * Returns a single row with total qty, cost, retail across all items/locations.
+     * Filter by location with ['location_id' => 2].
      *
      * @param  array<string,mixed> $query  Optional filters, e.g. ['location_id' => 2]
      */
     public function getInventoryValueTotals(array $query = []): Response
     {
-        return $this->http->get('inventory/values/totals', $query);
+        return $this->http->get('inventory/values', $query);
     }
 
     /**
-     * Retrieve inventory values broken down by item.
+     * Retrieve inventory values grouped by item and location.
      *
-     * @param  array<string,mixed> $query
+     * Each result row contains item_id, location_id, qty, cost, retail_value.
+     *
+     * @param  array<string,mixed> $query  Optional filters, e.g. ['location_id' => 2]
      */
     public function getInventoryValuesByItem(array $query = [], int $page = 1, int $perPage = 50): PaginatedResponse
     {
@@ -115,13 +120,20 @@ class InventoryResource extends BaseResource
     }
 
     /**
-     * Search inventory values for a specific item.
+     * Retrieve inventory values for a specific item across locations.
+     *
+     * Uses the main inventory/values endpoint filtered by item_id,
+     * grouped by item_id and location_id for per-location breakdown.
      *
      * @param  array<string,mixed> $query  Optional filters (location_id, etc.)
      */
     public function getItemInventoryValues(int $itemId, array $query = []): PaginatedResponse
     {
-        return $this->getPaginated("inventory/items/{$itemId}/values", $query);
+        $params = array_merge($query, [
+            'item_id' => $itemId,
+            'group'   => ['item_id', 'location_id'],
+        ]);
+        return $this->getPaginated('inventory/values', $params);
     }
 
     // =========================================================================
@@ -265,11 +277,15 @@ class InventoryResource extends BaseResource
     /**
      * Bulk-delete transfer lines.
      *
+     * Deletes multiple lines individually (no bulk endpoint in the API).
+     *
      * @param  int[] $lineIds
      */
-    public function bulkDeleteTransferLines(int $transferId, array $lineIds): Response
+    public function bulkDeleteTransferLines(int $transferId, array $lineIds): void
     {
-        return $this->http->post("inventory/transfers/{$transferId}/lines/bulk_destroy", ['ids' => $lineIds]);
+        foreach ($lineIds as $lineId) {
+            $this->deleteTransferLine($transferId, $lineId);
+        }
     }
 
     /**
@@ -303,10 +319,38 @@ class InventoryResource extends BaseResource
     }
 
     /**
-     * Search lines of a specific transfer event.
+     * Search event lines for a transfer (all events combined).
+     *
+     * Uses the transfer-level event_lines endpoint which returns
+     * all event lines across all events for the transfer.
      */
-    public function searchTransferEventLines(int $transferId, int $eventId, array $query = []): PaginatedResponse
+    public function searchTransferEventLines(int $transferId, array $query = []): PaginatedResponse
     {
-        return $this->getPaginated("inventory/transfers/{$transferId}/events/{$eventId}/lines", $query);
+        return $this->getPaginated("inventory/transfers/{$transferId}/event_lines", $query);
+    }
+
+    // -------------------------------------------------------------------------
+    // Transfer Lines with Embedded Items
+    // -------------------------------------------------------------------------
+
+    /**
+     * Search transfer lines with embedded item data.
+     *
+     * Unlike searchTransferLines(), this returns each line with the
+     * full item object embedded, useful for display purposes.
+     */
+    public function searchTransferLinesWithItems(int $transferId, array $query = []): PaginatedResponse
+    {
+        return $this->getPaginated("inventory/transfers/{$transferId}/transfer_lines", $query);
+    }
+
+    /**
+     * Update transfer lines from a shipment.
+     *
+     * @param  array<string,mixed> $data
+     */
+    public function updateTransferLinesFromShipment(int $transferId, array $data): Response
+    {
+        return $this->http->put("inventory/transfers/{$transferId}/transfer_lines", $data);
     }
 }
