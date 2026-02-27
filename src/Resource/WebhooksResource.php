@@ -20,9 +20,12 @@ class WebhooksResource extends BaseResource
     /**
      * Create a webhook subscription.
      *
-     * @param  array<string,mixed> $data  Required: url, event_types[]
+     * @param  array<string,mixed> $data  Required: url, events[]
      *
-     * Example event types: "ticket.completed", "item.updated", "customer.created"
+     * Supported events (underscore format):
+     *   "item_created", "item_updated", "customer_created", "customer_updated"
+     *
+     * NOTE: ticket/order/inventory events are NOT supported by Heartland.
      */
     public function create(array $data): Response
     {
