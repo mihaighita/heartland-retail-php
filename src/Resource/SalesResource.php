@@ -10,6 +10,8 @@ use HeartlandRetail\Http\Response;
 /**
  * Manages Heartland Retail *Sales* objects: Tickets, Orders, and Invoices.
  *
+ * All endpoints live under the /api/sales/ prefix.
+ *
  * @see https://dev.retail.heartland.us/#sales
  */
 class SalesResource extends BaseResource
@@ -25,7 +27,7 @@ class SalesResource extends BaseResource
      */
     public function createTicket(array $data): Response
     {
-        return $this->http->post('tickets', $data);
+        return $this->http->post('sales/tickets', $data);
     }
 
     /**
@@ -39,7 +41,7 @@ class SalesResource extends BaseResource
         if ($embed !== []) {
             $query['embed'] = implode(',', $embed);
         }
-        return $this->http->get("tickets/{$id}", $query);
+        return $this->http->get("sales/tickets/{$id}", $query);
     }
 
     /**
@@ -49,7 +51,7 @@ class SalesResource extends BaseResource
      */
     public function updateTicket(int $id, array $data): Response
     {
-        return $this->http->put("tickets/{$id}", $data);
+        return $this->http->put("sales/tickets/{$id}", $data);
     }
 
     /**
@@ -57,7 +59,7 @@ class SalesResource extends BaseResource
      */
     public function getTicketLines(int $id): PaginatedResponse
     {
-        return $this->getPaginated("tickets/{$id}/lines");
+        return $this->getPaginated("sales/tickets/{$id}/lines");
     }
 
     /**
@@ -67,7 +69,7 @@ class SalesResource extends BaseResource
      */
     public function addTicketItemLine(int $ticketId, array $data): Response
     {
-        return $this->http->post("tickets/{$ticketId}/lines", $data);
+        return $this->http->post("sales/tickets/{$ticketId}/lines", $data);
     }
 
     /**
@@ -77,7 +79,7 @@ class SalesResource extends BaseResource
      */
     public function addTicketPayment(int $ticketId, array $data): Response
     {
-        return $this->http->post("tickets/{$ticketId}/payments", $data);
+        return $this->http->post("sales/tickets/{$ticketId}/payments", $data);
     }
 
     /**
@@ -87,7 +89,7 @@ class SalesResource extends BaseResource
      */
     public function addTicketCoupon(int $ticketId, array $data): Response
     {
-        return $this->http->post("tickets/{$ticketId}/coupons", $data);
+        return $this->http->post("sales/tickets/{$ticketId}/coupons", $data);
     }
 
     /**
@@ -111,7 +113,7 @@ class SalesResource extends BaseResource
         if ($embed !== []) {
             $query['embed'] = implode(',', $embed);
         }
-        return $this->getPaginated('tickets', $query);
+        return $this->getPaginated('sales/tickets', $query);
     }
 
     /**
@@ -121,7 +123,7 @@ class SalesResource extends BaseResource
      */
     public function allTickets(array $filters = [], int $perPage = 100): iterable
     {
-        return $this->autoPaginate('tickets', $this->buildFilter($filters), $perPage);
+        return $this->autoPaginate('sales/tickets', $this->buildFilter($filters), $perPage);
     }
 
     // =========================================================================
@@ -135,7 +137,7 @@ class SalesResource extends BaseResource
      */
     public function createOrder(array $data): Response
     {
-        return $this->http->post('orders', $data);
+        return $this->http->post('sales/orders', $data);
     }
 
     /**
@@ -149,7 +151,7 @@ class SalesResource extends BaseResource
         if ($embed !== []) {
             $query['embed'] = implode(',', $embed);
         }
-        return $this->http->get("orders/{$id}", $query);
+        return $this->http->get("sales/orders/{$id}", $query);
     }
 
     /**
@@ -159,7 +161,7 @@ class SalesResource extends BaseResource
      */
     public function updateOrder(int $id, array $data): Response
     {
-        return $this->http->put("orders/{$id}", $data);
+        return $this->http->put("sales/orders/{$id}", $data);
     }
 
     /**
@@ -167,7 +169,7 @@ class SalesResource extends BaseResource
      */
     public function getOrderLines(int $id): PaginatedResponse
     {
-        return $this->getPaginated("orders/{$id}/lines");
+        return $this->getPaginated("sales/orders/{$id}/lines");
     }
 
     /**
@@ -177,7 +179,7 @@ class SalesResource extends BaseResource
      */
     public function addOrderItem(int $orderId, array $data): Response
     {
-        return $this->http->post("orders/{$orderId}/lines", $data);
+        return $this->http->post("sales/orders/{$orderId}/lines", $data);
     }
 
     /**
@@ -187,7 +189,7 @@ class SalesResource extends BaseResource
      */
     public function addOrderItemWithDiscounts(int $orderId, array $data): Response
     {
-        return $this->http->post("orders/{$orderId}/lines_with_discounts", $data);
+        return $this->http->post("sales/orders/{$orderId}/lines_with_discounts", $data);
     }
 
     /**
@@ -197,7 +199,7 @@ class SalesResource extends BaseResource
      */
     public function distributeOrderLine(int $orderId, int $lineId, array $data): Response
     {
-        return $this->http->put("orders/{$orderId}/lines/{$lineId}/distributions", $data);
+        return $this->http->put("sales/orders/{$orderId}/lines/{$lineId}/distributions", $data);
     }
 
     /**
@@ -207,7 +209,7 @@ class SalesResource extends BaseResource
      */
     public function addOrderShipping(int $orderId, array $data): Response
     {
-        return $this->http->post("orders/{$orderId}/shipping", $data);
+        return $this->http->post("sales/orders/{$orderId}/shipping", $data);
     }
 
     /**
@@ -217,7 +219,7 @@ class SalesResource extends BaseResource
      */
     public function addOrderPayment(int $orderId, array $data): Response
     {
-        return $this->http->post("orders/{$orderId}/payments", $data);
+        return $this->http->post("sales/orders/{$orderId}/payments", $data);
     }
 
     /**
@@ -239,7 +241,7 @@ class SalesResource extends BaseResource
         if ($embed !== []) {
             $query['embed'] = implode(',', $embed);
         }
-        return $this->getPaginated('orders', $query);
+        return $this->getPaginated('sales/orders', $query);
     }
 
     /**
@@ -249,7 +251,7 @@ class SalesResource extends BaseResource
      */
     public function allOrders(array $filters = [], int $perPage = 100): iterable
     {
-        return $this->autoPaginate('orders', $this->buildFilter($filters), $perPage);
+        return $this->autoPaginate('sales/orders', $this->buildFilter($filters), $perPage);
     }
 
     // =========================================================================
@@ -263,7 +265,7 @@ class SalesResource extends BaseResource
      */
     public function createInvoice(array $data): Response
     {
-        return $this->http->post('invoices', $data);
+        return $this->http->post('sales/invoices', $data);
     }
 
     /**
@@ -277,7 +279,7 @@ class SalesResource extends BaseResource
         if ($embed !== []) {
             $query['embed'] = implode(',', $embed);
         }
-        return $this->http->get("invoices/{$id}", $query);
+        return $this->http->get("sales/invoices/{$id}", $query);
     }
 
     /**
@@ -287,7 +289,7 @@ class SalesResource extends BaseResource
      */
     public function updateInvoice(int $id, array $data): Response
     {
-        return $this->http->put("invoices/{$id}", $data);
+        return $this->http->put("sales/invoices/{$id}", $data);
     }
 
     /**
@@ -295,7 +297,7 @@ class SalesResource extends BaseResource
      */
     public function getInvoiceLines(int $id): PaginatedResponse
     {
-        return $this->getPaginated("invoices/{$id}/lines");
+        return $this->getPaginated("sales/invoices/{$id}/lines");
     }
 
     /**
@@ -312,6 +314,6 @@ class SalesResource extends BaseResource
             $this->buildFilter($filters),
             ['page' => $page, 'per_page' => $perPage]
         );
-        return $this->getPaginated('invoices', $query);
+        return $this->getPaginated('sales/invoices', $query);
     }
 }
